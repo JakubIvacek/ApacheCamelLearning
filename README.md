@@ -44,17 +44,6 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 
 ---
 
-### 🔹 searchingForMistake/
-- Exercise for finding a **mistake** made in the routes
-- Mistake was wrong xslt after changing from RAW TO PAYLOAD
-- Because PAYLOAD option is trying to recreate SOAP RESPONSE based on wsld file
-  but based of xslt xml schema is wrong and response cant be created
-- Solution - change wsld files to create correct xml schema (commented out is wrong old schema)
-
-👉 See [v2 README](./searchingForMistake/README.md) for details.
-
----
-
 ## 🛠️ Running Any Version
 - Install **Camel JBang**:
   ```bash
