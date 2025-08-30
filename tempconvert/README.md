@@ -3,7 +3,8 @@
 This project is a simple **temperature conversion service** built using **Apache Camel** with SOAP (via Apache CXF) and XSLT transformations.  
 
 It demonstrates two different approaches for routing SOAP requests in Camel:
-1. **RAW mode** with inline routing (`tempConvert.camel.yaml`)  
+1. **RAW mode** with inline routing (`tempConvert.camel.yaml`) 
+1. **RAW mode** with inline routing + request set from File dynamically (`tempConvertFileReq.camel.yaml`)   
 2. **PAYLOAD mode** with dynamic routing (`tempconvertD.camel.yaml`) using header.operationName
 
 ---
@@ -16,6 +17,9 @@ It demonstrates two different approaches for routing SOAP requests in Camel:
 - XSLT-based transformations:
   - `*.xslt` → responses wrapped in SOAP Envelope for RAW delivery
   - `*-payload.xslt` → payload-only responses for PAYLOAD delivery
+- Contains XML files as request for calling Server as Client:
+  - Sets Request body for F -> C (`f-to-c-req.xml`)
+  - Sets Request body for C -> F (`c-to-f-req.xml`)
 - Includes **client simulation route** using Camel’s `timer` to auto-send requests
 - Runs standalone with **Camel JBang**
 
