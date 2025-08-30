@@ -18,15 +18,7 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 │   ├── f-to-c-payload.xslt           # F → C (payload-only response)
 │   ├── c-to-f-req.xml               # Request body file fro C -> F conversion
 │   ├── f-to-c-req.xml               # Request body file fro F -> C conversion
-│   └── README.md           
-│
-├── searchingForMistake/    # Exercise trying to find out what is wrong here (xslt problems)
-│   ├── celsiusToFaren.xslt
-│   ├── fahrenheitToCelsius.xslt
-│   ├── tempConvertFixed.camel.yaml
-|   ├── application.properties
-│   └── README.md             
-└── README.md              
+│   └── README.md                      
 ```
 
 ---
