@@ -1,4 +1,4 @@
-# 🌡️ TempConverter – Apache Camel SOAP Example
+# 🌡️ TempConverter – Apache Camel SOAP 
 
 This project is a simple **temperature conversion service** built using **Apache Camel** with SOAP (via Apache CXF) and XSLT transformations.  
 
@@ -24,14 +24,17 @@ It demonstrates two different approaches for routing SOAP requests in Camel:
 ## 📂 Project Structure
 ```
 .
-├── application.properties       # Camel JBang + CXF dependencies
-├── tempConvert.camel.yaml       # SOAP route using RAW mode + choice()
-├── tempconvertD.camel.yaml      # SOAP route using PAYLOAD + dynamic routing
-├── c-to-f.xslt                  # C → F (SOAP envelope response)
-├── f-to-c.xslt                  # F → C (SOAP envelope response)
-├── c-to-f-payload.xslt          # C → F (payload-only response)
-├── f-to-c-payload.xslt          # F → C (payload-only response)
-└── README.md                    # This file
+├── application.properties        # Camel JBang + CXF dependencies
+├── tempConvert.camel.yaml        # SOAP route using RAW mode + choice()
+├── tempconvertD.camel.yaml       # SOAP route using PAYLOAD + dynamic routing
+├── tempConvertFileReq.caml.yaml  # SOAP route using RAW + req body set from file
+├── c-to-f.xslt                   # C → F (SOAP envelope response)
+├── f-to-c.xslt                   # F → C (SOAP envelope response)
+├── c-to-f-payload.xslt           # C → F (payload-only response)
+├── f-to-c-payload.xslt           # F → C (payload-only response)
+├── c-to-f-req.xml                # Request body file for C → F conversion
+├── f-to-c-req.xml                # Request body file for F → C conversion
+└── README.md                     # Project documentation
 ```
 
 ---
@@ -55,6 +58,15 @@ Run either route variant:
 camel run tempConvert.camel.yaml
 ```
 
+### RAW mode (choice-based routing + req setBody from file dynamic as arg)
+```bash
+# F -> C conversion
+camel run tempconvertD.camel.yaml --property=soap.file=f-to-c-req.xml
+# C -> F conversion
+camel run tempconvertD.camel.yaml --property=soap.file=c-to-f-req.xml
+```
+
+
 ### PAYLOAD mode (dynamic routing)
 ```bash
 camel run tempconvertD.camel.yaml
@@ -64,9 +76,37 @@ Camel will auto-load dependencies defined in `application.properties`.
 
 ---
 
-## 🧪 Testing the Service
+## 🧪 Setting up SOAP BODY Client in non FileReq Examples
 
-You can send the following SOAP request using a SOAP client (e.g., SoapUI, Postman) or by placing it directly in the route’s setBody step (as shown in some of the Camel YAML examples).
+You can send the SOAP request by placing it directly in the route’s setBody step (as shown in some of the Camel YAML examples).
+
+Setting up example in yaml files find Client setBody and change : 
+
+```xml
+ - setBody:
+   id: setBody-eb39
+      description: set soapbody
+      expression:
+      constant:
+      id: constant-f217
+      expression: >-
+         <?xml version="1.0" encoding="utf-8"?> 
+         <soap:Envelope
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap:Body>
+               <CelsiusToFahrenheit xmlns="https://www.w3schools.com/xml/">
+                  <Celsius>30</Celsius>
+               </CelsiusToFahrenheit>
+            </soap:Body>
+         </soap:Envelope>
+```
+
+Or in UI Karavan also change setBody step: 
+
+![Alt text](images/examplePic.png)
+
 
 ### 1. SOAP Request (Celsius → Fahrenheit)
 
@@ -88,25 +128,6 @@ You can send the following SOAP request using a SOAP client (e.g., SoapUI, Postm
 <ns:CelsiusToFahrenheit>
    <ns:Celsius>100</ns:Celsius>
 </ns:CelsiusToFahrenheit>
-```
-
-### Expected Response 
-For (PAYLOAD) **payload routes** (`*-payload.xslt`): 
-```xml
-<ns:CelsiusToFahrenheitResponse xmlns:ns="https://www.w3schools.com/xml/">
-   <ns:CelsiusToFahrenheitResult>212.0</ns:CelsiusToFahrenheitResult>
-</ns:CelsiusToFahrenheitResponse>
-```
-
-For (RAW) **SOAP envelope routes** (`*.xslt`):
-```xml
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <ns:CelsiusToFahrenheitResponse xmlns:ns="https://www.w3schools.com/xml/">
-      <ns:CelsiusToFahrenheitResult>212.0</ns:CelsiusToFahrenheitResult>
-    </ns:CelsiusToFahrenheitResponse>
-  </soap:Body>
-</soap:Envelope>
 ```
 
 
@@ -131,30 +152,13 @@ For (RAW) **SOAP envelope routes** (`*.xslt`):
 </ns:FahrenheitToCelsius>
 ```
 
-### Expected Response 
-For (PAYLOAD) **payload routes** (`*-payload.xslt`): 
-```xml
-<ns:FahrenheitToCelsiusResponse xmlns:ns="https://www.w3schools.com/xml/">
-   <ns:FahrenheitToCelsiusResult>100.0</ns:FahrenheitToCelsiusResult>
-</ns:FahrenheitToCelsiusResponse>
-```
-
-For (RAW) **SOAP envelope routes** (`*.xslt`):
-```xml
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <ns:FahrenheitToCelsiusResponse xmlns:ns="https://www.w3schools.com/xml/">
-      <ns:FahrenheitToCelsiusResult>100.0</ns:FahrenheitToCelsiusResult>
-    </ns:FahrenheitToCelsiusResponse>
-  </soap:Body>
-</soap:Envelope>
-```
 ---
 
 ## 🛠️ How It Works
 1. SOAP request received on Camel CXF endpoint (`http://0.0.0.0:9999/tempconverter`)  
 2. Camel routes the request:
    - **RAW mode** → `choice` inspects SOAP body for Celsius/Fahrenheit operation  
+    - **RAW mode + setBody from file** → same as first option with `choice` + new Client Request is dynamically loaded from file which is taken as run argument 
    - **PAYLOAD mode** → uses `toD` and `direct` endpoints (`CelsiusToFahrenheit` or `FahrenheitToCelsius`)  
 3. XSLT applies conversion formula:
    - **C→F**: `(°C × 9/5) + 32`  

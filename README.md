@@ -1,21 +1,23 @@
-# 🌡️ Apache Camel SOAP TempConverter – Root Project
+# 🌡️ Apache Camel SOAP TempConverter
 
 This repository demonstrates how to build a **SOAP-based temperature converter** using **Apache Camel (with CXF)** and **XSLT transformations**.  
-It contains two different directories.
 
 ---
 
 ## 📂 Repository Structure
 ```
 .
-├── tempconverter/         # Implementation of Server and Client
-│   ├── application.properties
-│   ├── tempConvert.camel.yaml
-│   ├── tempconvertD.camel.yaml
-│   ├── c-to-f.xslt
-│   ├── f-to-c.xslt
-│   ├── c-to-f-payload.xslt
-│   ├── f-to-c-payload.xslt
+├── tempconverter/         # Server and Client TempConverter
+│   ├── application.properties        # Camel JBang + CXF dependencies
+│   ├── tempConvert.camel.yaml        # SOAP route using RAW mode + choice()
+│   ├── tempconvertD.camel.yaml       # SOAP route using PAYLOAD + dynamic routing
+│   ├── tempConvertFileReq.caml.yaml  # SOAP route using RAW + req body set from file
+│   ├── c-to-f.xslt                   # C → F (SOAP envelope response)
+│   ├── f-to-c.xslt                   # F → C (SOAP envelope response)
+│   ├── c-to-f-payload.xslt           # C → F (payload-only response)
+│   ├── f-to-c-payload.xslt           # F → C (payload-only response)
+│   ├── c-to-f-req.xml               # Request body file fro C -> F conversion
+│   ├── f-to-c-req.xml               # Request body file fro F -> C conversion
 │   └── README.md           
 │
 ├── searchingForMistake/    # Exercise trying to find out what is wrong here (xslt problems)
@@ -32,13 +34,18 @@ It contains two different directories.
 ## 📖 Directory Overview
 
 ### 🔹 tempconverter/
-- Shows two different routing strategies:
-  - **RAW mode** with inline choice logic ( choice when otherwise)
+- Shows two different routing strategies using xslt transformation:
+  - **RAW mode** with inline choice logic ( choice when otherwise )
+  - **RAW mode** with inline choice logic ( choice when otherwise ) + Body is set dynamically from file, fileName is set as run argument
   - **PAYLOAD mode** with dynamic routing (`toD (operationName)` + `direct` endpoints)
 - Contains XSLT files in two variants:
   - With full SOAP envelopes (`*.xslt`) for RAW
   - With payload-only responses (`*-payload.xslt`) for PAYLOAD
+- Contains XML files as request for calling Server as Client:
+  - Sets Request body for F -> C (`f-to-c-req.xml`)
+  - Sets Request body for C -> F (`c-to-f-req.xml`)
 - Includes a Camel **timer client** that auto-sends requests for testing.
+- You can change request in setBody step of timer route
 
 👉 See [v1 README](./tempconverter/README.md) for full details.
 
@@ -81,3 +88,4 @@ It contains two different directories.
 - [Camel JBang](https://camel.apache.org/manual/camel-jbang.html)
 - [Apache CXF SOAP](https://cxf.apache.org/)
 - [W3Schools TempConvert SOAP Service](https://www.w3schools.com/xml/tempconvert.asmx)
+
