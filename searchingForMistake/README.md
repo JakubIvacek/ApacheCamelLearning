@@ -1,111 +1,61 @@
-# 🌡️ TempConverter v2 – Camel SOAP (Debugging & Fixes)
+# 🔹 searchingForMistake/
 
-This directory is a **second variant** of the TempConverter project.  
-It highlights how SOAP requests are handled in **Camel CXF with XSLT**, and also documents a mistake that was fixed in the XSLT templates.
+This directory contains an **exercise** about identifying and fixing a mistake in Apache Camel routes when switching message modes.
 
----
+## 📌 Problem Description
 
-## 🐞 Original Issue
-In the first draft of the XSLT files, the `<xsl:template match>` was written as:
-
-```xml
-<xsl:template match="/ns:CelsiusToFahrenheit">
-```
-and
-```xml
-<xsl:template match="/w:FahrenheitToCelsius">
-```
-
-❌ This was wrong because SOAP messages are wrapped in an **Envelope** and **Body**.  
-As a result, the templates would never match incoming requests.
+- A mistake occurred after switching from **RAW** to **PAYLOAD** mode in Camel CXF routes.  
+- In **PAYLOAD** mode, Camel tries to **recreate the SOAP response** based on the **WSDL file**.  
+- The issue was that the **XSLT transformation schema did not match** the expected WSDL contract, so the SOAP response could not be properly created.  
 
 ---
 
-## ✅ Fixed Version
-The corrected XSLTs explicitly match the SOAP path, for example:
+## ❌ Mistake
 
-```xml
-<xsl:template match="/soap:Envelope/soap:Body/ns:CelsiusToFahrenheit">
-```
-and
-
-```xml
-<xsl:template match="/soap:Envelope/soap:Body/ns:FahrenheitToCelsius">
-```
-
-This ensures Camel CXF can properly route and transform incoming SOAP messages.
-
-Other fixes made:
-- **Namespaces** unified (`ns` prefix used consistently for `https://www.w3schools.com/xml/`).
-- **Content-Type** header corrected to `text/xml; charset=utf-8` instead of `text/html`.
-- **File names** normalized (`fahrenheit` spelling fixed).
+- The original XSLT templates tried to match SOAP structures incorrectly.  
+- Example (wrong template match, commented out in the files):
+  ```xml
+  <!-- <xsl:template match="/soap:Envelope/soap:Body/ns:CelsiusToFahrenheit"> -->
+  ```
+- Since PAYLOAD mode removes the outer SOAP envelope and works only with the body payload, this path no longer matched.
 
 ---
 
-## 📂 Project Structure
-```
-.
-├── celsiusToFaren.xslt          # Celsius → Fahrenheit transformation (SOAP-aware)
-├── fahrenheitToCelsius.xslt     # Fahrenheit → Celsius transformation (SOAP-aware)
-├── tempConvertFixed.camel.yaml  # Camel routes using CXF + XSLT (PAYLOAD)
-└── README.md                    # This file
-```
+## ✅ Solution
+
+- Update the XSLT templates to **match directly on the body operation element** (without SOAP envelope).  
+- Example (fixed template in `celsiusToFAren.xslt`):
+  ```xml
+  <xsl:template match="/ns:CelsiusToFahrenheit">
+  ```
+- Similarly in `farenheitToCelsius.xslt`:
+  ```xml
+  <xsl:template match="/w:FahrenheitToCelsius">
+  ```
+
+- If the XSLT schema changes, make sure your **XSLT templates follow the correct XML schema** from the WSDL.  
+- The **old schema versions** are left commented out in the files for reference.
 
 ---
 
-## ▶️ Running the Service
-Start Camel with:
-```bash
-camel run tempConvertFixed.camel.yaml
-```
+## 📂 Files
 
-The service listens at:
-```
-http://0.0.0.0:9999/convert
-```
+- `application.properties` → defines Camel dependencies (CXF HTTP transport)  
+- `myConverter.camel.yaml` → Camel route definition handling conversion requests  
+- `celsiusToFAren.xslt` → XSLT for converting Celsius → Fahrenheit  
+- `farenheitToCelsius.xslt` → XSLT for converting Fahrenheit → Celsius  
 
 ---
 
-## 🧪 Testing
+## 🚀 How to Run
 
-### Example Request (Celsius → Fahrenheit)
-```xml
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <ns:CelsiusToFahrenheit xmlns:ns="https://www.w3schools.com/xml/">
-      <ns:Celsius>25</ns:Celsius>
-    </ns:CelsiusToFahrenheit>
-  </soap:Body>
-</soap:Envelope>
-```
-
-### Example Response
-```xml
-<ns:CelsiusToFahrenheitResponse xmlns:ns="https://www.w3schools.com/xml/">
-  <ns:CelsiusToFahrenheitResult>77.0</ns:CelsiusToFahrenheitResult>
-</ns:CelsiusToFahrenheitResponse>
-```
+1. Make sure you have **Camel JBang** installed.  
+2. Run with the provided properties:  
+   ```sh
+   camel run myConverter.camel.yaml --property-file=application.properties
+   ```
+3. Send SOAP requests to the service, e.g. `CelsiusToFahrenheit` or `FahrenheitToCelsius`.  
 
 ---
 
-## 🛠️ How It Works
-1. SOAP request is received by Camel CXF at `/convert`
-2. Camel inspects the payload:
-   - If it contains **FahrenheitToCelsius**, the `fahrenheitToCelsius.xslt` is applied
-   - Otherwise, the `celsiusToFaren.xslt` is applied
-3. XSLT performs the temperature conversion and formats the SOAP response
-4. Logs display both pre- and post-transformation bodies
-
----
-
-## 📖 Notes
-- This directory documents the **debugging process** and the **fixed XSLTs**.  
-- The commented-out lines in the XSLT files show the *original mistake* for reference.  
-- Always ensure your `<xsl:template match>` path matches the actual SOAP structure delivered by CXF.
-
----
-
-## 📖 References
-- [Apache Camel](https://camel.apache.org/)
-- [Camel CXF Component](https://camel.apache.org/components/cxf-component.html)
-- [W3Schools TempConvert SOAP Service](https://www.w3schools.com/xml/tempconvert.asmx)
+👉 See also: [v2 README](./searchingForMistake/README.md) for more details.  

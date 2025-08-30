@@ -4,7 +4,7 @@ This project is a simple **temperature conversion service** built using **Apache
 
 It demonstrates two different approaches for routing SOAP requests in Camel:
 1. **RAW mode** with inline routing (`tempConvert.camel.yaml`)  
-2. **PAYLOAD mode** with dynamic routing (`tempconvertD.camel.yaml`)  
+2. **PAYLOAD mode** with dynamic routing (`tempconvertD.camel.yaml`) using header.operationName
 
 ---
 
@@ -14,8 +14,8 @@ It demonstrates two different approaches for routing SOAP requests in Camel:
   - **Fahrenheit → Celsius**
 - Two routing styles (RAW vs PAYLOAD)
 - XSLT-based transformations:
-  - `*.xslt` → responses wrapped in SOAP Envelope  
-  - `*-payload.xslt` → payload-only responses  
+  - `*.xslt` → responses wrapped in SOAP Envelope for RAW delivery
+  - `*-payload.xslt` → payload-only responses for PAYLOAD delivery
 - Includes **client simulation route** using Camel’s `timer` to auto-send requests
 - Runs standalone with **Camel JBang**
 
@@ -66,7 +66,9 @@ Camel will auto-load dependencies defined in `application.properties`.
 
 ## 🧪 Testing the Service
 
-### SOAP Request (Celsius → Fahrenheit)
+You can send the following SOAP request using a SOAP client (e.g., SoapUI, Postman) or by placing it directly in the route’s setBody step (as shown in some of the Camel YAML examples).
+
+### 1. SOAP Request (Celsius → Fahrenheit)
 ```xml
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="https://www.w3schools.com/xml/">
    <soap:Body>
@@ -77,15 +79,15 @@ Camel will auto-load dependencies defined in `application.properties`.
 </soap:Envelope>
 ```
 
-### Expected Response
-For **payload routes** (`*-payload.xslt`):
+### Expected Response 
+For (PAYLOAD) **payload routes** (`*-payload.xslt`): 
 ```xml
 <ns:CelsiusToFahrenheitResponse xmlns:ns="https://www.w3schools.com/xml/">
    <ns:CelsiusToFahrenheitResult>212.0</ns:CelsiusToFahrenheitResult>
 </ns:CelsiusToFahrenheitResponse>
 ```
 
-For **SOAP envelope routes** (`*.xslt`):
+For (RAW) **SOAP envelope routes** (`*.xslt`):
 ```xml
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
@@ -95,7 +97,35 @@ For **SOAP envelope routes** (`*.xslt`):
   </soap:Body>
 </soap:Envelope>
 ```
+### 2. SOAP Request (Fahrenheit → Celsius)
+```xml
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="https://www.w3schools.com/xml/">
+   <soap:Body>
+      <ns:FahrenheitToCelsius>
+         <ns:Fahrenheit>212</ns:Fahrenheit>
+      </ns:FahrenheitToCelsius>
+   </soap:Body>
+</soap:Envelope>
+```
 
+### Expected Response 
+For (PAYLOAD) **payload routes** (`*-payload.xslt`): 
+```xml
+<ns:FahrenheitToCelsiusResponse xmlns:ns="https://www.w3schools.com/xml/">
+   <ns:FahrenheitToCelsiusResult>100.0</ns:FahrenheitToCelsiusResult>
+</ns:FahrenheitToCelsiusResponse>
+```
+
+For (RAW) **SOAP envelope routes** (`*.xslt`):
+```xml
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns:FahrenheitToCelsiusResponse xmlns:ns="https://www.w3schools.com/xml/">
+      <ns:FahrenheitToCelsiusResult>100.0</ns:FahrenheitToCelsiusResult>
+    </ns:FahrenheitToCelsiusResponse>
+  </soap:Body>
+</soap:Envelope>
+```
 ---
 
 ## 🛠️ How It Works

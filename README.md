@@ -1,14 +1,14 @@
 # 🌡️ Apache Camel SOAP TempConverter – Root Project
 
 This repository demonstrates how to build a **SOAP-based temperature converter** using **Apache Camel (with CXF)** and **XSLT transformations**.  
-It contains two different directories, each showing a different approach and learning process.
+It contains two different directories.
 
 ---
 
 ## 📂 Repository Structure
 ```
 .
-├── v1-tempconverter/         # First implementation
+├── tempconverter/         # Implementation of Server and Client
 │   ├── application.properties
 │   ├── tempConvert.camel.yaml
 │   ├── tempconvertD.camel.yaml
@@ -16,45 +16,42 @@ It contains two different directories, each showing a different approach and lea
 │   ├── f-to-c.xslt
 │   ├── c-to-f-payload.xslt
 │   ├── f-to-c-payload.xslt
-│   └── README.md              # Detailed docs for v1
+│   └── README.md           
 │
-├── v2-tempconverter-fixed/    # Second implementation with fixes
+├── searchingForMistake/    # Exercise trying to find out what is wrong here (xslt problems)
 │   ├── celsiusToFaren.xslt
 │   ├── fahrenheitToCelsius.xslt
 │   ├── tempConvertFixed.camel.yaml
-│   └── README.md              # Details mistakes + fixes
-│
-└── README.md                  # This file (root overview)
+|   ├── application.properties
+│   └── README.md             
+└── README.md              
 ```
 
 ---
 
 ## 📖 Directory Overview
 
-### 🔹 v1-tempconverter/
+### 🔹 tempconverter/
 - Shows two different routing strategies:
-  - **RAW mode** with inline choice logic
-  - **PAYLOAD mode** with dynamic routing (`toD` + `direct` endpoints)
+  - **RAW mode** with inline choice logic ( choice when otherwise)
+  - **PAYLOAD mode** with dynamic routing (`toD (operationName)` + `direct` endpoints)
 - Contains XSLT files in two variants:
-  - With full SOAP envelopes (`*.xslt`)
-  - With payload-only responses (`*-payload.xslt`)
+  - With full SOAP envelopes (`*.xslt`) for RAW
+  - With payload-only responses (`*-payload.xslt`) for PAYLOAD
 - Includes a Camel **timer client** that auto-sends requests for testing.
 
-👉 See [v1 README](./v1-tempconverter/README.md) for full details.
+👉 See [v1 README](./tempconverter/README.md) for full details.
 
 ---
 
-### 🔹 v2-tempconverter-fixed/
-- Documents a **mistake** made in the first draft of the XSLT templates.
-- Original error: XSLTs matched only `/ns:CelsiusToFahrenheit` instead of the full SOAP path (`/soap:Envelope/soap:Body/ns:CelsiusToFahrenheit`).
-- This version fixes:
-  - Correct XPath template match
-  - Namespace consistency
-  - Content-Type header (`text/xml` instead of `text/html`)
-  - Filename typos (`fahrenheit` spelling)
-- Contains a README explaining the debugging process.
+### 🔹 searchingForMistake/
+- Exercise for finding a **mistake** made in the routes
+- Mistake was wrong xslt after changing from RAW TO PAYLOAD
+- Because PAYLOAD option is trying to recreate SOAP RESPONSE based on wsld file
+  but based of xslt xml schema is wrong and response cant be created
+- Solution - change wsld files to create correct xml schema (commented out is wrong old schema)
 
-👉 See [v2 README](./v2-tempconverter-fixed/README.md) for details.
+👉 See [v2 README](./searchingForMistake/README.md) for details.
 
 ---
 
@@ -75,7 +72,7 @@ It contains two different directories, each showing a different approach and lea
 - Understand **Camel CXF** integration for SOAP services.
 - Practice **XSLT transformations** with SOAP payloads.
 - Explore different routing strategies (**RAW vs PAYLOAD**).
-- Debug common mistakes in SOAP/XSLT integration.
+- Find common mistakes in SOAP/XSLT integration.
 
 ---
 
