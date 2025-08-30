@@ -1,0 +1,137 @@
+- route:
+    id: route-25d1
+    from:
+      id: from-937a
+      uri: cxf
+      parameters:
+        address: http://0.0.0.0:9999/tempconverter
+        wsdlURL: https://www.w3schools.com/xml/tempconvert.asmx?wsdl
+        serviceName: "{https://www.w3schools.com/xml/}TempConvert"
+        portName: "{https://www.w3schools.com/xml/}TempConvertSoap"
+        dataFormat: PAYLOAD
+      steps:
+        - log:
+            id: log-cd67
+            message: Server before transformation - ${body}
+        - toD:
+            id: dynamic-route
+            uri: direct:${header.operationName}
+        - log:
+            id: log-a335
+            message: After transformation - ${body}
+- route:
+    id: route-042a
+    nodePrefixId: route-d3a
+    from:
+      id: from-c1a3
+      uri: direct
+      parameters:
+        name: CelsiusToFahrenheit
+      steps:
+        - log:
+            id: log-7b88
+            message: CelsiusToFahrenheit
+        - to:
+            id: to-0f33
+            description: C to F xslt
+            uri: xslt
+            parameters:
+              resourceUri: file:c-to-f-payload.xslt
+- route:
+    id: route-8b9e
+    nodePrefixId: route-105
+    from:
+      id: from-5fb4
+      uri: direct
+      parameters:
+        name: FahrenheitToCelsius
+      steps:
+        - log:
+            id: log-825f
+            message: FahrenheitToCelsius
+        - to:
+            id: to-b312
+            description: F to C xslt
+            uri: xslt
+            parameters:
+              resourceUri: file:f-to-c-payload.xslt
+- route:
+    id: route-146f
+    nodePrefixId: route-bcc
+    from:
+      id: from-4f09
+      description: starter
+      uri: timer
+      parameters:
+        timerName: starter
+        repeatCount: "1"
+      steps:
+        - setBody:
+            id: setBody-eb39
+            description: set soapbody
+            expression:
+              constant:
+                id: constant-f217
+                expression: |
+                  <?xml version="1.0" encoding="utf-8"?> 
+                  <CelsiusToFahrenheit xmlns="https://www.w3schools.com/xml/">
+                        <Celsius>30</Celsius>
+                      </CelsiusToFahrenheit>
+        - log:
+            id: log-5659
+            description: body log
+            message: ${body}
+        - setHeaders:
+            id: setHeaders-c0ed
+            headers:
+              - id: setHeader-d086
+                description: Content-Type
+                name: Content-Type
+                expression:
+                  constant:
+                    id: constant-c6f5
+                    expression: text/xml; charset=utf-8
+              - id: setHeader-fe25
+                description: operationName
+                name: operationName
+                expression:
+                  constant:
+                    id: constant-d70f
+                    expression: CelsiusToFahrenheit
+        - to:
+            id: to-ae4a
+            description: Send to Server
+            uri: cxf
+            parameters:
+              address: http://0.0.0.0:9999/tempconverter
+              wsdlURL: https://www.w3schools.com/xml/tempconvert.asmx?wsdl
+              serviceName: "{https://www.w3schools.com/xml/}TempConvert"
+              portName: "{https://www.w3schools.com/xml/}TempConvertSoap"
+              dataFormat: PAYLOAD
+        - log:
+            id: log-4ca3
+            description: log body answer
+            message: ${body}
+        - setBody:
+            id: setBody-3bb3
+            description: clean answer
+            expression:
+              xpath:
+                id: xpath-6345
+                expression: >-
+                  /soap:Envelope/soap:Body/classic:CelsiusToFahrenheitResponse/classic:CelsiusToFahrenheitResult/text()
+                  |
+                  /soap:Envelope/soap:Body/classic:FahrenheitToCelsiusResponse/classic:FahrenheitToCelsiusResult/text()
+                  |
+                  /classic:CelsiusToFahrenheitResponse/classic:CelsiusToFahrenheitResult/text()
+                  |
+                  /classic:FahrenheitToCelsiusResponse/classic:FahrenheitToCelsiusResult/text()
+                namespace:
+                  - key: soap
+                    value: http://schemas.xmlsoap.org/soap/envelope/
+                  - key: classic
+                    value: https://www.w3schools.com/xml/
+        - log:
+            id: log-21b6
+            message: "Answer cleaned from server : ${body}"
+            logName: log result value
