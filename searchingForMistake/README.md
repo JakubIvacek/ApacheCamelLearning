@@ -7,17 +7,19 @@ This directory contains an **exercise** about identifying and fixing a mistake i
 - A mistake occurred after switching from **RAW** to **PAYLOAD** mode in Camel CXF routes.  
 - In **PAYLOAD** mode, Camel tries to **recreate the SOAP response** based on the **WSDL file**.  
 - The issue was that the **XSLT transformation schema did not match** the expected WSDL contract, so the SOAP response could not be properly created.  
+- Additionally, the original XSLT sometimes generated a **wrong XML format** (structure not compliant with the WSDL), which meant Camel could not wrap it into a valid SOAP response.
 
 ---
 
-## ❌ Mistake
+## ❌ Mistakes
 
-- The original XSLT templates tried to match SOAP structures incorrectly.  
+- 1. The original XSLT templates tried to match SOAP structures incorrectly.  
 - Example (wrong template match, commented out in the files):
   ```xml
   <!-- <xsl:template match="/soap:Envelope/soap:Body/ns:CelsiusToFahrenheit"> -->
   ```
 - Since PAYLOAD mode removes the outer SOAP envelope and works only with the body payload, this path no longer matched.
+- 2. Furthermore, the **generated XML did not follow the correct WSDL schema**, so Camel CXF failed to produce the SOAP response.
 
 ---
 
@@ -33,7 +35,7 @@ This directory contains an **exercise** about identifying and fixing a mistake i
   <xsl:template match="/w:FahrenheitToCelsius">
   ```
 
-- If the XSLT schema changes, make sure your **XSLT templates follow the correct XML schema** from the WSDL.  
+- Ensure that the **output XML matches the WSDL schema** so that Camel can generate a valid SOAP response.  
 - The **old schema versions** are left commented out in the files for reference.
 
 ---

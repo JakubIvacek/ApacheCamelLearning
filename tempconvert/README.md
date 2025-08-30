@@ -69,6 +69,9 @@ Camel will auto-load dependencies defined in `application.properties`.
 You can send the following SOAP request using a SOAP client (e.g., SoapUI, Postman) or by placing it directly in the route’s setBody step (as shown in some of the Camel YAML examples).
 
 ### 1. SOAP Request (Celsius → Fahrenheit)
+
+- RAW
+
 ```xml
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="https://www.w3schools.com/xml/">
    <soap:Body>
@@ -77,6 +80,14 @@ You can send the following SOAP request using a SOAP client (e.g., SoapUI, Postm
       </ns:CelsiusToFahrenheit>
    </soap:Body>
 </soap:Envelope>
+```
+
+- PAYLOAD
+
+```xml
+<ns:CelsiusToFahrenheit>
+   <ns:Celsius>100</ns:Celsius>
+</ns:CelsiusToFahrenheit>
 ```
 
 ### Expected Response 
@@ -97,7 +108,12 @@ For (RAW) **SOAP envelope routes** (`*.xslt`):
   </soap:Body>
 </soap:Envelope>
 ```
-### 2. SOAP Request (Fahrenheit → Celsius)
+
+```
+### 2. SOAP Request (Fahrenheit → Celsius) 
+
+- RAW
+
 ```xml
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="https://www.w3schools.com/xml/">
    <soap:Body>
@@ -106,6 +122,13 @@ For (RAW) **SOAP envelope routes** (`*.xslt`):
       </ns:FahrenheitToCelsius>
    </soap:Body>
 </soap:Envelope>
+```
+- PAYLOAD
+
+```xml
+<ns:FahrenheitToCelsius>
+     <ns:Fahrenheit>212</ns:Fahrenheit>
+</ns:FahrenheitToCelsius>
 ```
 
 ### Expected Response 
