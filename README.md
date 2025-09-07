@@ -7,8 +7,9 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 ## 📂 Repository Structure
 ```
 .
-├── tempconverter/         # Server and Client TempConverter
-│   ├── application.properties        # Camel JBang + CXF dependencies
+├── images/                # Just some images
+├── tempconverter/         # TempConverter Server + Client XSLT transformations
+│   ├── application.properties        # Camel JBang dependencies
 │   ├── tempConvert.camel.yaml        # SOAP route using RAW mode + choice()
 │   ├── tempconvertD.camel.yaml       # SOAP route using PAYLOAD + dynamic routing
 │   ├── tempConvertFileReq.caml.yaml  # SOAP route using RAW + req body set from file
@@ -18,8 +19,14 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 │   ├── f-to-c-payload.xslt           # F → C (payload-only response)
 │   ├── c-to-f-req.xml               # Request body file fro C -> F conversion
 │   ├── f-to-c-req.xml               # Request body file fro F -> C conversion
-│   └── README.md
-└── README.md                   
+│   └── README.md           
+│
+├── tempconverterPOJO/    TempConverter Server + Client Java transformations
+│   ├── tempConvertPOJO.camel.yaml # Route using java for transformations
+|   ├── application.properties     # Camel JBang dependencies
+|   ├── pom.xml                    # Mvn .jar installation wsld2java
+│   └── README.md             
+└── README.md              
 ```
 
 ---
@@ -37,23 +44,16 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 - Contains XML files as request for calling Server as Client:
   - Sets Request body for F -> C (`f-to-c-req.xml`)
   - Sets Request body for C -> F (`c-to-f-req.xml`)
-- Includes a Camel **timer client** that auto-sends requests for testing.
-- You can change request in setBody step of timer route
 
 👉 See [v1 README](./tempconverter/README.md) for full details.
 
 ---
 
-## 🛠️ Running Any Version
-- Install **Camel JBang**:
-  ```bash
-  curl -L https://camel.apache.org/install.sh | sh
-  ```
-- Run one of the route files, for example:
-  ```bash
-  camel run tempConvert.camel.yaml
-  ```
-- Test with SOAP clients (SoapUI, Postman, curl).
+### 🔹 tempconverterPOJO/
+- Shows route tempcoverter using java for transformation
+  - pom.xml - creates wsld2java .jar which is used to un/marshal xml into java and for transformations 
+
+👉 See [v2 README](./searchingForMistake/README.md) for details.
 
 ---
 
@@ -61,7 +61,8 @@ This repository demonstrates how to build a **SOAP-based temperature converter**
 - Understand **Camel CXF** integration for SOAP services.
 - Practice **XSLT transformations** with SOAP payloads.
 - Explore different routing strategies (**RAW vs PAYLOAD**).
-- Find common mistakes in SOAP/XSLT integration.
+- Practice **Java transformations** with SOAP payloads.
+- Maven creation wsld2java .jar
 
 ---
 

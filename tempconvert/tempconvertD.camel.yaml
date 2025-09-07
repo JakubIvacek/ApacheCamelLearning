@@ -9,6 +9,7 @@
         serviceName: "{https://www.w3schools.com/xml/}TempConvert"
         portName: "{https://www.w3schools.com/xml/}TempConvertSoap"
         dataFormat: PAYLOAD
+        schemaValidationEnabled: true
       steps:
         - log:
             id: log-cd67

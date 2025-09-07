@@ -109,7 +109,7 @@ Setting up example in yaml files find Client setBody and change :
 
 Or in UI Karavan also change setBody step: 
 
-![Alt text](images/examplePic.png)
+![Alt text](/images/examplePic.png)
 
 
 ### 1. SOAP Request (Celsius → Fahrenheit)

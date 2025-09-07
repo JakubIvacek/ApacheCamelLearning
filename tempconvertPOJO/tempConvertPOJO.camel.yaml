@@ -1,58 +1,74 @@
 - route:
-    id: route-25d1
+    id: route-ef4123
     from:
-      id: from-937a
+      id: from-ad5e3
       uri: cxf
       parameters:
-        address: http://0.0.0.0:9999/tempconverter
+        address: http://localhost:9999/hello
+        dataFormat: MESSAGE
+        loggingFeatureEnabled: false
         wsdlURL: https://www.w3schools.com/xml/tempconvert.asmx?wsdl
         serviceName: "{https://www.w3schools.com/xml/}TempConvert"
         portName: "{https://www.w3schools.com/xml/}TempConvertSoap"
-        dataFormat: RAW
-        loggingFeatureEnabled: false
-        schemaValidationEnabled: false
       steps:
         - log:
-            id: log-cd67
-            message: Server before transformation - ${body}
+            id: log-e4b323
+            message: PALYLOAD=\n${body}
+        - unmarshal:
+            id: unmarshal-7ff73
+            soap:
+              id: soap-5e16
+              contextPath: com.w3schools.xml
+        - log:
+            id: log-58d83
+            message: UNMARSHALLED=\n${body}
         - choice:
-            id: choice-02a5
-            description: Which conversion
+            id: choice-e0a5
             when:
-              - id: when-e25d
-                description: When C to F
+              - id: when-8d55
+                description: C2F
                 expression:
                   simple:
-                    id: simple-4e9f
-                    expression: ${bodyAs(String)} contains 'CelsiusToFahrenheit'
+                    id: simple-99ec
+                    expression: >
+                      ${body.getClass().getName()} ==
+                      'com.w3schools.xml.CelsiusToFahrenheit'
                 steps:
-                  - log:
-                      id: log-80c3
-                      description: Choice log
-                      message: C to F option
-                  - to:
-                      id: to-da69
-                      description: C to F xslt
-                      uri: xslt
-                      parameters:
-                        resourceUri: file:c-to-f.xslt
+                  - setBody:
+                      id: setBody-4c0e3
+                      expression:
+                        java:
+                          id: java-af123
+                          expression: "int celsius = Integer.parseInt(((com.w3schools.xml.CelsiusToFahrenheit)body).getCelsius());\r\ncom.w3schools.xml.CelsiusToFahrenheitResponse response = new com.w3schools.xml.CelsiusToFahrenheitResponse();\r\nresponse.setCelsiusToFahrenheitResult(Integer.toString(32 + celsius * 9 / 5));\r\n\r\nreturn response;"
             otherwise:
-              id: otherwise-8907
-              description: Otherwise F to C
+              id: otherwise-f506
+              description: F2C
               steps:
-                - log:
-                    id: log-918d
-                    description: Choice log
-                    message: F to C option
-                - to:
-                    id: to-c3e7
-                    description: F to C xslt
-                    uri: xslt
-                    parameters:
-                      resourceUri: file:f-to-c.xslt
+                - setBody:
+                    id: setBody-0289
+                    expression:
+                      java:
+                        id: java-8443
+                        expression: >
+                          int fahrenheit =
+                          Integer.parseInt(((com.w3schools.xml.FahrenheitToCelsius)
+                          body).getFahrenheit());
+
+                          com.w3schools.xml.FahrenheitToCelsiusResponse response
+                          = new com.w3schools.xml.FahrenheitToCelsiusResponse();
+
+                          response.setFahrenheitToCelsiusResult(Integer.toString((fahrenheit
+                          - 32) * 5 / 9));
+
+                          return response;
+        - marshal:
+            id: marshal-65b43
+            soap:
+              id: soap-f28e
+              contextPath: com.w3schools.xml
         - log:
-            id: log-a335
-            message: After transformation - ${body}
+            id: log-b3883
+            message: RESPONSE=\n${body}
 - route:
     id: route-146f
     nodePrefixId: route-bcc
@@ -71,14 +87,16 @@
               constant:
                 id: constant-f217
                 expression: >-
-                  <?xml version="1.0" encoding="utf-8"?> <soap:Envelope
+                  <?xml version="1.0" encoding="utf-8"?>
+
+                  <soap:Envelope
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                   xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soap:Body>
-                      <CelsiusToFahrenheit xmlns="https://www.w3schools.com/xml/">
-                        <Celsius>30</Celsius>
-                      </CelsiusToFahrenheit>
+                      <FahrenheitToCelsius xmlns="https://www.w3schools.com/xml/">
+                        <Fahrenheit>86</Fahrenheit>
+                      </FahrenheitToCelsius>
                     </soap:Body>
                   </soap:Envelope>
         - log:
@@ -100,7 +118,7 @@
             description: Send to Server
             uri: cxf
             parameters:
-              address: http://localhost:9999/tempconverter
+              address: http://localhost:9999/hello
               wsdlURL: https://www.w3schools.com/xml/tempconvert.asmx?wsdl
               serviceName: "{https://www.w3schools.com/xml/}TempConvert"
               portName: "{https://www.w3schools.com/xml/}TempConvertSoap"
@@ -124,6 +142,7 @@
                     value: http://schemas.xmlsoap.org/soap/envelope/
                   - key: classic
                     value: https://www.w3schools.com/xml/
+                resultType: java.lang.String
         - log:
             id: log-21b6
             message: "Answer cleaned from server : ${body}"

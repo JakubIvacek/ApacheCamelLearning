@@ -9,12 +9,13 @@
 
   
   <xsl:template match="/">
-
+    <result>
     <ns:CelsiusToFahrenheitResponse>
           <ns:CelsiusToFahrenheitResult>
             <xsl:call-template name="convertTemp"/>
           </ns:CelsiusToFahrenheitResult>
     </ns:CelsiusToFahrenheitResponse>
+    </result>
 
   </xsl:template>
 
